@@ -5,14 +5,22 @@ from pathlib import Path
 
 def write_fasta(series_seq, series_id, path: Path):
     skipped = 0
+    count = 0
     with open(path, "w") as fh:
         for tid, seq in zip(series_id, series_seq):
             if not seq or not isinstance(seq, str) or seq.strip() == "":
                 skipped += 1
                 continue
+            
             seq_rna = seq.strip().upper().replace("T", "U")
             fh.write(f">{tid}\n{seq_rna}\n")
-    print(f"  wrote {path}  ({len(series_seq) - skipped} sequences, {skipped} skipped)")
+            
+            count += 1
+            # Log every 1000 sequences
+            if count % 1000 == 0:
+                print(f"    ... processed {count} sequences for {path.name}")
+                
+    print(f"  [DONE] {path.name}: {count} written, {skipped} skipped")
 
 def main():
     parser = argparse.ArgumentParser(description="CSV → FASTA for RNAfold")
