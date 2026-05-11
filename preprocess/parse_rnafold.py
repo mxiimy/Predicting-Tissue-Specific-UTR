@@ -7,21 +7,25 @@ def parse_rnafold_out(filepath: Path) -> dict:
     mfe_map = {}
     if not filepath.exists():
         return mfe_map
+        
+    print(f"  Reading {filepath.name}...")
     with open(filepath) as fh:
-        lines = [l.rstrip() for l in fh if l.strip()]
-
-    i = 0
-    while i < len(lines):
-        if lines[i].startswith(">"):
-            header = lines[i][1:]
-            transcript_id = header.split("|")[0]
-            i += 2 # Skip header and sequence lines
-            if i < len(lines):
-                match = re.search(r'\(\s*(-?\d+\.?\d*)\s*\)', lines[i])
-                mfe_map[transcript_id] = float(match.group(1)) if match else None
-            i += 1
-        else:
-            i += 1
+        # Process line by line to save memory and allow progress tracking
+        current_id = None
+        count = 0
+        for line in fh:
+            line = line.strip()
+            if not line: continue
+            
+            if line.startswith(">"):
+                current_id = line[1:].split("|")[0]
+            elif "(" in line and ")" in line:
+                match = re.search(r'\(\s*(-?\d+\.?\d*)\s*\)', line)
+                if match and current_id:
+                    mfe_map[current_id] = float(match.group(1))
+                    count += 1
+                    if count % 1000 == 0:
+                        print(f"    ... parsed {count} MFE values")
     return mfe_map
 
 def main():
