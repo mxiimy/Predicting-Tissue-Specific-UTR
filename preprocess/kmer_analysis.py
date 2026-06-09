@@ -176,7 +176,7 @@ def main():
     five_utr_col = pick_column(df, ["5_UTR", "5' UTR"])
     three_utr_col = pick_column(df, ["3_UTR", "3' UTR"])
 
-    summary_path = output_dir / "kmer_summary.csv"
+    summary_path = output_dir / "kmer_summary.csv" 
     top_path = output_dir / "kmer_top_hits.csv"
     counts_path = output_dir / "kmer_counts.csv"
 
